@@ -1189,6 +1189,43 @@ function GlassWidget({ pro, shared, S, set, T, K, skin, setSkin, askPro, proUnlo
   const [section, setSection] = useState("tema");
   const [spec, setSpec] = useState({ x:50, y:50 });
   const [copiedCfg, setCopiedCfg] = useState(false);
+  const [aiActas, setAiActas] = useState(null);
+  const [aiActasLoading, setAiActasLoading] = useState(false);
+  const [aiResumen, setAiResumen] = useState(null);
+  const [aiResumenLoading, setAiResumenLoading] = useState(false);
+
+  const generateActas = async () => {
+    if (!transcriptCtx || transcriptCtx.trim().length < 20) return;
+    setAiActasLoading(true);
+    try {
+      const res = await fetch("/api/ia", {
+        method:"POST", headers:{"Content-Type":"application/json"},
+        body: JSON.stringify({ type:"actas", messages:[{ role:"user",
+          content:`${transcriptCtx}\n\nExtrae tareas y acuerdos de esta transcripción. Responde SOLO con JSON, sin texto extra: [{"text":"...","who":"NOMBRE o EQUIPO","done":false}]` }] }),
+      });
+      const d = await res.json();
+      const txt = d.content?.[0]?.text || "";
+      const m = txt.match(/\[[\s\S]*\]/);
+      if (m) { const items = JSON.parse(m[0]); setAiActas(items.map((it,i)=>({...it,spIdx:i%3}))); }
+    } catch(e) { console.error(e); }
+    setAiActasLoading(false);
+  };
+
+  const generateResumen = async () => {
+    if (!transcriptCtx || transcriptCtx.trim().length < 20) return;
+    setAiResumenLoading(true);
+    try {
+      const res = await fetch("/api/ia", {
+        method:"POST", headers:{"Content-Type":"application/json"},
+        body: JSON.stringify({ type:"resumen", messages:[{ role:"user",
+          content:`${transcriptCtx}\n\nGenera un resumen ejecutivo de esta reunión/clase en 3-5 puntos clave. En español, sin markdown.` }] }),
+      });
+      const d = await res.json();
+      setAiResumen(d.content?.[0]?.text || "");
+    } catch(e) { console.error(e); }
+    setAiResumenLoading(false);
+  };
+
 
   useEffect(() => {
     let i = 0;
@@ -1611,7 +1648,16 @@ function GlassWidget({ pro, shared, S, set, T, K, skin, setSkin, askPro, proUnlo
 
         {tab === "actas" && (
           <div style={{ display:"flex", flexDirection:"column", gap:sp(8) }}>
-            {ACTAS.map((item,i) => {
+            <button onClick={generateActas} disabled={aiActasLoading || lines.length < 2} style={{
+              width:"100%", padding:`${sp(10)}px`, borderRadius:r(14),
+              background: aiActasLoading ? "rgba(128,128,150,0.1)" : `linear-gradient(145deg, ${T.p}, ${T.deep})`,
+              border:"none", color:"#fff", fontSize:fz(12), fontWeight:800,
+              fontFamily:"inherit", cursor: lines.length < 2 ? "not-allowed" : "pointer",
+              opacity: lines.length < 2 ? 0.45 : 1, letterSpacing:"0.1em", textTransform:"uppercase",
+            }}>
+              {aiActasLoading ? "Generando…" : lines.length < 2 ? "Inicia grabación primero" : "Generar Actas IA ✦"}
+            </button>
+            {(aiActas || ACTAS).map((item,i) => {
               const col = T.sp[item.spIdx];
               return (
                 <div key={i} style={{
@@ -1648,37 +1694,54 @@ function GlassWidget({ pro, shared, S, set, T, K, skin, setSkin, askPro, proUnlo
         )}
 
         {tab === "resumen" && (
-          <div style={{ ...K.glass(0.085), borderRadius:r(24), padding:sp(17), position:"relative", overflow:"hidden" }}>
-            <div style={{
-              position:"absolute", top:0, left:0, right:0, height:1,
-              background:"linear-gradient(90deg, transparent, rgba(255,255,255,0.5), transparent)",
-              backgroundSize:"200% 100%", animation:`shimmer ${dur(3)} linear infinite`,
-            }}/>
-            <div style={{ display:"flex", gap:sp(8), marginBottom:sp(15) }}>
-              {[["4","voces"],["1:02","min"],["3","tareas"]].map(([n,l],i) => (
-                <div key={l} style={{
-                  flex:1, borderRadius:r(14), padding:"12px 6px", textAlign:"center",
-                  background: i===0 ? `linear-gradient(145deg, ${T.p}, ${T.deep})` : "rgba(128,128,150,0.08)",
-                  border: i===0 ? "none" : "1px solid rgba(128,128,150,0.15)",
-                  boxShadow: i===0 ? `0 1px 1px rgba(255,255,255,0.4) inset, 0 4px ${18*G}px ${T.p}73` : "none",
-                }}>
-                  <div style={{ color: i===0 ? "#fff" : K.tx(0.95), fontSize:fz(23), fontWeight:900, lineHeight:1, fontVariantNumeric:"tabular-nums" }}>{n}</div>
-                  <div style={{
-                    color: i===0 ? "rgba(255,255,255,0.75)" : K.tx(0.38),
-                    fontSize:9, marginTop:4, fontWeight:700, letterSpacing:"0.16em", textTransform:"uppercase",
-                  }}>{l}</div>
-                </div>
-              ))}
-            </div>
-            {RESUMEN_ROWS.map((row,i) => (
-              <div key={row.k} style={{
-                display:"flex", gap:10, alignItems:"baseline", padding:"9px 0",
-                borderTop: i>0 ? `1px solid ${K.tx(0.07)}` : "none",
-              }}>
-                <span style={{ color:T.hi, fontSize:9, fontWeight:800, letterSpacing:"0.18em", flexShrink:0, width:56 }}>{row.k}</span>
-                <span style={{ color:K.tx(0.85), fontSize:fz(13), lineHeight:1.45 }}>{row.v}</span>
+          <div style={{ display:"flex", flexDirection:"column", gap:sp(8) }}>
+            <button onClick={generateResumen} disabled={aiResumenLoading || lines.length < 2} style={{
+              width:"100%", padding:`${sp(10)}px`, borderRadius:r(14),
+              background: aiResumenLoading ? "rgba(128,128,150,0.1)" : `linear-gradient(145deg, ${T.p}, ${T.deep})`,
+              border:"none", color:"#fff", fontSize:fz(12), fontWeight:800,
+              fontFamily:"inherit", cursor: lines.length < 2 ? "not-allowed" : "pointer",
+              opacity: lines.length < 2 ? 0.45 : 1, letterSpacing:"0.1em", textTransform:"uppercase",
+            }}>
+              {aiResumenLoading ? "Generando…" : lines.length < 2 ? "Inicia grabación primero" : "Generar Resumen IA ✦"}
+            </button>
+            {aiResumen ? (
+              <div style={{ ...K.glass(0.085), borderRadius:r(20), padding:sp(16) }}>
+                <div style={{ color:K.tx(0.88), fontSize:fz(13), lineHeight:1.65, whiteSpace:"pre-wrap" }}>{aiResumen}</div>
               </div>
-            ))}
+            ) : (
+              <div style={{ ...K.glass(0.085), borderRadius:r(24), padding:sp(17), position:"relative", overflow:"hidden" }}>
+                <div style={{
+                  position:"absolute", top:0, left:0, right:0, height:1,
+                  background:"linear-gradient(90deg, transparent, rgba(255,255,255,0.5), transparent)",
+                  backgroundSize:"200% 100%", animation:`shimmer ${dur(3)} linear infinite`,
+                }}/>
+                <div style={{ display:"flex", gap:sp(8), marginBottom:sp(15) }}>
+                  {[["4","voces"],["1:02","min"],["3","tareas"]].map(([n,l],i) => (
+                    <div key={l} style={{
+                      flex:1, borderRadius:r(14), padding:"12px 6px", textAlign:"center",
+                      background: i===0 ? `linear-gradient(145deg, ${T.p}, ${T.deep})` : "rgba(128,128,150,0.08)",
+                      border: i===0 ? "none" : "1px solid rgba(128,128,150,0.15)",
+                      boxShadow: i===0 ? `0 1px 1px rgba(255,255,255,0.4) inset, 0 4px ${18*G}px ${T.p}73` : "none",
+                    }}>
+                      <div style={{ color: i===0 ? "#fff" : K.tx(0.95), fontSize:fz(23), fontWeight:900, lineHeight:1, fontVariantNumeric:"tabular-nums" }}>{n}</div>
+                      <div style={{
+                        color: i===0 ? "rgba(255,255,255,0.75)" : K.tx(0.38),
+                        fontSize:9, marginTop:4, fontWeight:700, letterSpacing:"0.16em", textTransform:"uppercase",
+                      }}>{l}</div>
+                    </div>
+                  ))}
+                </div>
+                {RESUMEN_ROWS.map((row,i) => (
+                  <div key={row.k} style={{
+                    display:"flex", gap:10, alignItems:"baseline", padding:"9px 0",
+                    borderTop: i>0 ? `1px solid ${K.tx(0.07)}` : "none",
+                  }}>
+                    <span style={{ color:T.hi, fontSize:9, fontWeight:800, letterSpacing:"0.18em", flexShrink:0, width:56 }}>{row.k}</span>
+                    <span style={{ color:K.tx(0.85), fontSize:fz(13), lineHeight:1.45 }}>{row.v}</span>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         )}
       </div>
