@@ -1,13 +1,13 @@
-﻿import { useState, useRef, useEffect, useCallback, useMemo } from "react";
+import { useState, useRef, useEffect, useCallback, useMemo } from "react";
 
-/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+/* ════════════════════════════════════════════════════════════════
    HUELLA SUITE
-   Â· Arranca en HUELLA clÃ¡sico (cristal lÃ­quido)
-   Â· Ajustes â†’ Estilo: Cristal â‡„ Slawn (street-art)
-   Â· PRO MAX bajo contraseÃ±a ðŸ”’
-   â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
+   · Arranca en HUELLA clásico (cristal líquido)
+   · Ajustes → Estilo: Cristal ⇄ Slawn (street-art)
+   · PRO MAX bajo contraseña 🔒
+   ════════════════════════════════════════════════════════════════ */
 
-const PRO_PASSWORD = "1234";   // â† cambia aquÃ­ la contraseÃ±a de PRO MAX
+const PRO_PASSWORD = "1234";   // ← cambia aquí la contraseña de PRO MAX
 
 const RED = "#FF4655";
 
@@ -21,15 +21,15 @@ function hslToHex(h, s, l) {
 }
 
 const THEMES = {
-  indigo:    { name:"Ãndigo",    p:"#2B5BFF", hi:"#5E85FF", deep:"#1838B8", sp:["#A06BFF","#00E8A2","#FF7A3D"] },
+  indigo:    { name:"Índigo",    p:"#2B5BFF", hi:"#5E85FF", deep:"#1838B8", sp:["#A06BFF","#00E8A2","#FF7A3D"] },
   synthwave: { name:"Synthwave", p:"#FF2BD6", hi:"#FF6BE8", deep:"#A60F8C", sp:["#00E5FF","#FFE545","#9D5CFF"] },
   matrix:    { name:"Matrix",    p:"#00E87A", hi:"#5CFFAE", deep:"#00A356", sp:["#B6FF5C","#00E5FF","#7CFFC8"] },
   solar:     { name:"Solar",     p:"#FF8A00", hi:"#FFB35C", deep:"#C26400", sp:["#FF4655","#FFE545","#FF7EB6"] },
   sakura:    { name:"Sakura",    p:"#FF7EB6", hi:"#FFA8CE", deep:"#D14E88", sp:["#C8A8FF","#8AF5C8","#FFB88A"] },
-  oceano:    { name:"OcÃ©ano",    p:"#00C2D9", hi:"#5CE0F0", deep:"#008CA3", sp:["#5E85FF","#00E8A2","#A8E8FF"] },
+  oceano:    { name:"Océano",    p:"#00C2D9", hi:"#5CE0F0", deep:"#008CA3", sp:["#5E85FF","#00E8A2","#A8E8FF"] },
   oro:       { name:"Oro",       p:"#E9B949", hi:"#F5D77E", deep:"#B8892B", sp:["#FF9E5C","#E8E0C8","#D17A4E"] },
   fantasma:  { name:"Fantasma",  p:"#C8C8DC", hi:"#FFFFFF", deep:"#8A8AA3", sp:["#E6E6F0","#AAAAC2","#88889E"] },
-  rubi:      { name:"RubÃ­",      p:"#FF3D5A", hi:"#FF7186", deep:"#C21834", sp:["#FF8A5C","#FF7EB6","#C86BFF"] },
+  rubi:      { name:"Rubí",      p:"#FF3D5A", hi:"#FF7186", deep:"#C21834", sp:["#FF8A5C","#FF7EB6","#C86BFF"] },
 };
 
 const DEFAULTS = {
@@ -54,37 +54,37 @@ const GLASS_SEG  = { fino:{ density:0.55, blur:24 }, medio:{ density:1, blur:38 
 const RADIUS_SEG = { nitido:8, suave:18, capsula:28 };
 
 const DEMO_LINES = [
-  { id:1, speaker:"ANA",    spIdx:0, time:"00:03", text:"Buenos dÃ­as, empecemos con el avance del sprint." },
-  { id:2, speaker:"CARLOS", spIdx:1, time:"00:14", text:"El mÃ³dulo principal estÃ¡ al 80%, sin bloqueos crÃ­ticos." },
-  { id:3, speaker:"MARÃA",  spIdx:2, time:"00:29", text:"Necesito una hora extra el viernes para integraciones." },
+  { id:1, speaker:"ANA",    spIdx:0, time:"00:03", text:"Buenos días, empecemos con el avance del sprint." },
+  { id:2, speaker:"CARLOS", spIdx:1, time:"00:14", text:"El módulo principal está al 80%, sin bloqueos críticos." },
+  { id:3, speaker:"MARÍA",  spIdx:2, time:"00:29", text:"Necesito una hora extra el viernes para integraciones." },
   { id:4, speaker:"ANA",    spIdx:0, time:"00:43", text:"Perfecto, coordinamos con el cliente hoy mismo." },
 ];
 
 const ACTAS = [
   { done:false, text:"Carlos coordina llamada con cliente hoy",        who:"CARLOS", spIdx:1 },
-  { done:false, text:"MarÃ­a finaliza integraciones antes del viernes", who:"MARÃA",  spIdx:2 },
-  { done:true,  text:"RevisiÃ³n mÃ³dulo principal â€” 80% completado",     who:"ANA",    spIdx:0 },
+  { done:false, text:"María finaliza integraciones antes del viernes", who:"MARÍA",  spIdx:2 },
+  { done:true,  text:"Revisión módulo principal — 80% completado",     who:"ANA",    spIdx:0 },
 ];
 
 const RESUMEN_ROWS = [
-  { k:"TEMA",    v:"Avance del proyecto y planificaciÃ³n de entrega" },
-  { k:"EQUIPO",  v:"Ana Â· Carlos Â· MarÃ­a" },
+  { k:"TEMA",    v:"Avance del proyecto y planificación de entrega" },
+  { k:"EQUIPO",  v:"Ana · Carlos · María" },
   { k:"ACUERDO", v:"Llamada con el cliente este viernes" },
 ];
 
 const LIVE_PHRASES = [
-  "Analizando audio en tiempo realâ€¦",
-  "Detectando hablantesâ€¦",
-  "SÃ­, confirmo la entrega para el viernesâ€¦",
-  "Generando resumen inteligenteâ€¦",
+  "Analizando audio en tiempo real…",
+  "Detectando hablantes…",
+  "Sí, confirmo la entrega para el viernes…",
+  "Generando resumen inteligente…",
 ];
 
-const CHAT_SUGGESTIONS = ["Â¿QuÃ© se acordÃ³?", "Â¿QuÃ© pidiÃ³ MarÃ­a?", "ResÃºmelo en una frase"];
+const CHAT_SUGGESTIONS = ["¿Qué se acordó?", "¿Qué pidió María?", "Resúmelo en una frase"];
 
 
 const fold = s => Array.from(s).map(c => c.normalize("NFD")[0].toLowerCase()).join("");
 
-/* â”€â”€â”€ paleta Slawn â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+/* ─── paleta Slawn ───────────────────────────────────────────── */
 const INK = "#101010", PAPER = "#FFFDF4";
 const S_RED = "#E8302A", S_YEL = "#FFD21F", S_BLU = "#1B57E0", S_GRN = "#1FA84C", S_PNK = "#FF5CA8";
 const S_SPEAKERS = [S_BLU, S_GRN, S_RED];
@@ -102,7 +102,7 @@ const canvasCard = (i = 0, rot = 0) => ({
 const MARKER = "'Permanent Marker', 'Marker Felt', 'Comic Sans MS', cursive";
 const HAND   = "'Patrick Hand', 'Chalkboard', 'Comic Sans MS', cursive";
 
-/* â•â•â•â•â•â•â•â• hooks â•â•â•â•â•â•â•â• */
+/* ════════ hooks ════════ */
 function useMicrophone(active) {
   const [level, setLevel] = useState(0);
   const [bands, setBands] = useState(Array(26).fill(0));
@@ -190,7 +190,7 @@ function useDrag() {
   return { pos, onPointerDown };
 }
 
-/* â•â•â•â•â•â•â•â• controles glass â•â•â•â•â•â•â•â• */
+/* ════════ controles glass ════════ */
 function Slider({ label, value, min, max, step = 1, onChange, T, K, suffix = "", track }) {
   return (
     <div style={{ marginBottom:11 }}>
@@ -273,7 +273,7 @@ function Section({ title, open, onToggle, children, T, K }) {
   );
 }
 
-/* â•â•â•â•â•â•â•â• piezas glass â•â•â•â•â•â•â•â• */
+/* ════════ piezas glass ════════ */
 function Waveform({ bands, active, T, style, glow }) {
   if (style === "linea") {
     const W = 160, H = 22;
@@ -373,7 +373,7 @@ function RecordButton({ recording, level, onToggle, T, glow }) {
         onMouseDown={() => setPressed(true)}
         onMouseUp={() => setPressed(false)}
         onMouseLeave={() => setPressed(false)}
-        aria-label={recording ? "Detener grabaciÃ³n" : "Iniciar grabaciÃ³n"}
+        aria-label={recording ? "Detener grabación" : "Iniciar grabación"}
         style={{
           position:"relative", width:54, height:54, borderRadius:"50%", border:"none",
           background: recording
@@ -452,7 +452,7 @@ function Tabs({ tabs, tab, setTab, T, K, glow }) {
   );
 }
 
-/* â•â•â•â•â•â•â•â• pestaÃ±as PRO â•â•â•â•â•â•â•â• */
+/* ════════ pestañas PRO ════════ */
 function VocesTab({ T, K, r, fz, sp, glow, lines }) {
   const stats = useMemo(() => {
     const by = {};
@@ -500,7 +500,7 @@ function VocesTab({ T, K, r, fz, sp, glow, lines }) {
                     fontSize:8.5, fontWeight:900, letterSpacing:"0.1em", color:"#fff",
                     background:`linear-gradient(145deg, ${col}, ${col}aa)`,
                     borderRadius:999, padding:"2px 7px", boxShadow:`0 2px ${8*glow}px ${col}59`,
-                  }}>LÃDER</span>
+                  }}>LÍDER</span>
                 )}
               </div>
               <span style={{ color:K.tx(0.95), fontSize:fz(16), fontWeight:900, fontVariantNumeric:"tabular-nums" }}>
@@ -555,14 +555,14 @@ function BuscarTab({ T, K, r, fz, sp, query, setQuery, who, setWho, lines }) {
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={K.tx(0.4)} strokeWidth="2.2" strokeLinecap="round">
           <circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/>
         </svg>
-        <input value={query} onChange={e => setQuery(e.target.value)} placeholder="Buscar en la transcripciÃ³nâ€¦"
+        <input value={query} onChange={e => setQuery(e.target.value)} placeholder="Buscar en la transcripción…"
           style={{ flex:1, background:"transparent", border:"none", outline:"none", color:K.tx(0.92), fontSize:fz(13), fontFamily:"inherit" }}/>
         {query && (
           <button onClick={() => setQuery("")} aria-label="Limpiar" style={{
             border:"none", background:"rgba(128,128,150,0.2)", borderRadius:"50%",
             width:18, height:18, cursor:"pointer", color:K.tx(0.6),
             fontSize:11, lineHeight:1, display:"flex", alignItems:"center", justifyContent:"center",
-          }}>Ã—</button>
+          }}>×</button>
         )}
       </div>
       <div style={{ display:"flex", gap:5, flexWrap:"wrap" }}>
@@ -586,8 +586,8 @@ function BuscarTab({ T, K, r, fz, sp, query, setQuery, who, setWho, lines }) {
       </div>
       {results.length === 0 ? (
         <div style={{ ...K.glass(0.05), borderRadius:r(16), padding:"22px 16px", textAlign:"center" }}>
-          <div style={{ fontSize:20, marginBottom:6 }}>ðŸ«§</div>
-          <div style={{ fontSize:12, color:K.tx(0.5) }}>Sin coincidencias{query ? ` para â€œ${query}â€` : ""}</div>
+          <div style={{ fontSize:20, marginBottom:6 }}>🫧</div>
+          <div style={{ fontSize:12, color:K.tx(0.5) }}>Sin coincidencias{query ? ` para “${query}”` : ""}</div>
         </div>
       ) : results.map((line, i) => {
         const col = T.sp[line.spIdx];
@@ -636,8 +636,8 @@ function ChatTab({ T, K, r, fz, sp, glow, msgs, input, setInput, loading, onSend
                 <path d="M18 14l.8 2 2 .8-2 .8-.8 2-.8-2-2-.8 2-.8Z"/>
               </svg>
             </div>
-            <div style={{ fontSize:fz(13), fontWeight:700, color:K.tx(0.8), marginBottom:4 }}>PregÃºntale a la reuniÃ³n</div>
-            <div style={{ fontSize:11, color:K.tx(0.45), lineHeight:1.5 }}>La IA responde usando solo lo que se dijo en la transcripciÃ³n.</div>
+            <div style={{ fontSize:fz(13), fontWeight:700, color:K.tx(0.8), marginBottom:4 }}>Pregúntale a la reunión</div>
+            <div style={{ fontSize:11, color:K.tx(0.45), lineHeight:1.5 }}>La IA responde usando solo lo que se dijo en la transcripción.</div>
           </div>
         )}
         {msgs.map((m, i) => (
@@ -676,7 +676,7 @@ function ChatTab({ T, K, r, fz, sp, glow, msgs, input, setInput, loading, onSend
       <div style={{ ...K.glass(0.09), borderRadius:999, padding:"6px 6px 6px 16px", display:"flex", alignItems:"center", gap:8 }}>
         <input value={input} onChange={e => setInput(e.target.value)}
           onKeyDown={e => { if (e.key === "Enter") onSend(); }}
-          placeholder="Escribe tu preguntaâ€¦" disabled={loading}
+          placeholder="Escribe tu pregunta…" disabled={loading}
           style={{ flex:1, background:"transparent", border:"none", outline:"none", color:K.tx(0.92), fontSize:fz(13), fontFamily:"inherit" }}/>
         <button onClick={() => onSend()} disabled={loading || !input.trim()} aria-label="Enviar" style={{
           width:34, height:34, borderRadius:"50%", border:"none", flexShrink:0,
@@ -694,7 +694,7 @@ function ChatTab({ T, K, r, fz, sp, glow, msgs, input, setInput, loading, onSend
   );
 }
 
-/* â•â•â•â•â•â•â•â• piezas Slawn â•â•â•â•â•â•â•â• */
+/* ════════ piezas Slawn ════════ */
 function Drip({ color, left, w = 10 }) {
   return (
     <svg width={w} height={26} viewBox="0 0 10 26" style={{ position:"absolute", bottom:-24, left, zIndex:2 }}>
@@ -745,7 +745,7 @@ function MarkerUnderline({ color = S_YEL, width = 120 }) {
   );
 }
 
-/* botÃ³n segment slawn */
+/* botón segment slawn */
 function SlawnSeg({ options, value, onChange }) {
   return (
     <div style={{ display:"flex", gap:8 }}>
@@ -766,7 +766,7 @@ function SlawnSeg({ options, value, onChange }) {
   );
 }
 
-/* â•â•â•â•â•â•â•â• MODAL CONTRASEÃ‘A â•â•â•â•â•â•â•â• */
+/* ════════ MODAL CONTRASEÑA ════════ */
 function PasswordModal({ skin, T, K, onClose, onSuccess }) {
   const [pwd, setPwd] = useState("");
   const [error, setError] = useState(false);
@@ -825,7 +825,7 @@ function PasswordModal({ skin, T, K, onClose, onSuccess }) {
           fontSize: slawn ? 13 : 11.5,
           color: slawn ? INK : K.tx(0.5),
           opacity: slawn ? 0.65 : 1,
-        }}>Introduce la contraseÃ±a para entrar</div>
+        }}>Introduce la contraseña para entrar</div>
 
         <input
           ref={inputRef}
@@ -833,7 +833,7 @@ function PasswordModal({ skin, T, K, onClose, onSuccess }) {
           value={pwd}
           onChange={e => setPwd(e.target.value)}
           onKeyDown={e => { if (e.key === "Enter") trySubmit(); }}
-          placeholder="â€¢â€¢â€¢â€¢"
+          placeholder="••••"
           style={{
             width:"100%", boxSizing:"border-box",
             padding:"10px 14px", marginBottom:10,
@@ -853,7 +853,7 @@ function PasswordModal({ skin, T, K, onClose, onSuccess }) {
             textAlign:"center", fontSize:11, marginBottom:8, fontWeight:700,
             color: slawn ? S_RED : RED,
             fontFamily: slawn ? MARKER : "inherit",
-          }}>contraseÃ±a incorrecta</div>
+          }}>contraseña incorrecta</div>
         )}
 
         <div style={{ display:"flex", gap:8 }}>
@@ -874,14 +874,14 @@ function PasswordModal({ skin, T, K, onClose, onSuccess }) {
                   borderRadius:13,
                   boxShadow:`0 1px 1px rgba(255,255,255,0.4) inset, 0 4px 16px ${T.p}66`,
                 }),
-          }}>Desbloquear ðŸ”“</button>
+          }}>Desbloquear 🔓</button>
         </div>
       </div>
     </div>
   );
 }
 
-/* â•â•â•â•â•â•â•â• WIDGET SLAWN (clÃ¡sico, skin street-art) â•â•â•â•â•â•â•â• */
+/* ════════ WIDGET SLAWN (clásico, skin street-art) ════════ */
 function SlawnWidget({ shared, openSettings, settingsOpen, skin, setSkin, caos, setCaos, askPro, proUnlocked, enterPro, enterProfesor }) {
   const { recording, setRecording, sec, fmt, bands, level, isReal, pos, onPointerDown, handleExport, copied, minimize, toggleRecording, lines, meetingUrl, setMeetingUrl, transcriptCtx } = shared;
   const [tab, setTab] = useState("live");
@@ -909,7 +909,7 @@ function SlawnWidget({ shared, openSettings, settingsOpen, skin, setSkin, caos, 
         <Doodle type="star"  style={{ bottom:60, right:-22, transform:"rotate(-20deg) scale(.65)" }}/>
       </>}
 
-      {/* tÃ­tulo */}
+      {/* título */}
       <div onPointerDown={onPointerDown} style={{
         cursor:"grab", touchAction:"none", userSelect:"none",
         display:"flex", alignItems:"center", justifyContent:"space-between",
@@ -921,7 +921,7 @@ function SlawnWidget({ shared, openSettings, settingsOpen, skin, setSkin, caos, 
           }}>HUELLA</div>
           <MarkerUnderline color={S_RED} width={150}/>
           <div style={{ fontSize:14, color:INK, opacity:0.65, marginTop:2, transform:"rotate(-1deg)" }}>
-            {recording ? (isReal ? "âœ escuchÃ¡ndote de verdad" : "âœ grabando (demo)") : "âœ lista para garabatear"}
+            {recording ? (isReal ? "✏ escuchándote de verdad" : "✏ grabando (demo)") : "✏ lista para garabatear"}
           </div>
         </div>
         <div style={{ display:"flex", gap:8, flexShrink:0 }}>
@@ -929,7 +929,7 @@ function SlawnWidget({ shared, openSettings, settingsOpen, skin, setSkin, caos, 
             ...canvasCard(0, -3), width:38, height:38,
             display:"flex", alignItems:"center", justifyContent:"center",
             cursor:"pointer", fontFamily:MARKER, fontSize:18, color:INK,
-          }}>â€”</button>
+          }}>—</button>
           <button onClick={openSettings} aria-label="Ajustes" style={{
             ...canvasCard(2, 4), width:38, height:38,
             display:"flex", alignItems:"center", justifyContent:"center",
@@ -948,7 +948,7 @@ function SlawnWidget({ shared, openSettings, settingsOpen, skin, setSkin, caos, 
       {settingsOpen && (
         <div style={{ ...canvasCard(3, 0.8), padding:"14px 14px 18px", position:"relative", animation:"plop .35s ease both", "--rot":"0.8deg" }}>
           <Drip color={S_GRN} left={50} w={8}/>
-          <div style={{ fontFamily:MARKER, fontSize:13, color:INK, marginBottom:8, transform:"rotate(-1deg)" }}>ESTILO â†’</div>
+          <div style={{ fontFamily:MARKER, fontSize:13, color:INK, marginBottom:8, transform:"rotate(-1deg)" }}>ESTILO →</div>
           <SlawnSeg value={skin} onChange={setSkin}
             options={[["cristal","CRISTAL",S_BLU],["slawn","SLAWN",S_PNK]]}/>
           <div style={{ height:12 }}/>
@@ -959,9 +959,9 @@ function SlawnWidget({ shared, openSettings, settingsOpen, skin, setSkin, caos, 
             borderRadius:WOBBLE[0], boxShadow:`2px 2px 0 ${INK}`,
             cursor:"pointer", fontFamily:HAND, fontSize:14, color:INK,
           }}>
-            <span>+ caos (mÃ¡s garabatos)</span>
+            <span>+ caos (más garabatos)</span>
             <span style={{ fontFamily:MARKER, fontSize:13, color: caos ? S_GRN : INK, opacity: caos ? 1 : 0.4 }}>
-              {caos ? "SÃ!!" : "no"}
+              {caos ? "SÍ!!" : "no"}
             </span>
           </button>
           <div style={{ height:12 }}/>
@@ -973,7 +973,7 @@ function SlawnWidget({ shared, openSettings, settingsOpen, skin, setSkin, caos, 
             borderRadius:WOBBLE[0], boxShadow:`3px 3px 0 ${INK}`,
             cursor:"pointer", fontFamily:MARKER, fontSize:13,
           }}>
-            ðŸŽ“ MODO PROFESOR
+            🎓 MODO PROFESOR
           </button>
           <div style={{ height:12 }}/>
           {/* PRO lock */}
@@ -989,12 +989,12 @@ function SlawnWidget({ shared, openSettings, settingsOpen, skin, setSkin, caos, 
                 ? <><rect x="5" y="11" width="14" height="9" rx="2.5"/><path d="M8 11V7a4 4 0 0 1 7.5-2"/></>
                 : <><rect x="5" y="11" width="14" height="9" rx="2.5"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></>}
             </svg>
-            {proUnlocked ? "ENTRAR A PRO MAX" : "PRO MAX ðŸ”’"}
+            {proUnlocked ? "ENTRAR A PRO MAX" : "PRO MAX 🔒"}
           </button>
         </div>
       )}
 
-      {/* tarjeta grabaciÃ³n */}
+      {/* tarjeta grabación */}
       <div style={{
         ...canvasCard(0, -0.8), padding:"16px 16px 18px",
         display:"flex", alignItems:"center", gap:14, position:"relative",
@@ -1013,7 +1013,7 @@ function SlawnWidget({ shared, openSettings, settingsOpen, skin, setSkin, caos, 
         </button>
         <div style={{ flex:1, minWidth:0 }}>
           <div style={{ fontFamily:MARKER, fontSize:17, color:INK, marginBottom:6, display:"flex", alignItems:"center", gap:8 }}>
-            {recording ? "Â¡HABLA!" : "dale a la carita"}
+            {recording ? "¡HABLA!" : "dale a la carita"}
             {recording && (
               <span style={{
                 fontFamily:HAND, fontSize:13, fontWeight:700,
@@ -1147,11 +1147,11 @@ function SlawnWidget({ shared, openSettings, settingsOpen, skin, setSkin, caos, 
           </div>
           {[
             { k:"TEMA",   v:"avance del proyecto y entrega",   col:S_BLU },
-            { k:"EQUIPO", v:"Ana Â· Carlos Â· MarÃ­a",            col:S_GRN },
+            { k:"EQUIPO", v:"Ana · Carlos · María",            col:S_GRN },
             { k:"TRATO",  v:"llamada con cliente el viernes",  col:S_RED },
           ].map(row => (
             <div key={row.k} style={{ display:"flex", gap:10, alignItems:"baseline", padding:"7px 0" }}>
-              <span style={{ fontFamily:MARKER, fontSize:11, color:row.col, flexShrink:0, width:60, transform:"rotate(-1deg)", display:"inline-block" }}>{row.k} â†’</span>
+              <span style={{ fontFamily:MARKER, fontSize:11, color:row.col, flexShrink:0, width:60, transform:"rotate(-1deg)", display:"inline-block" }}>{row.k} →</span>
               <span style={{ color:INK, fontSize:15 }}>{row.v}</span>
             </div>
           ))}
@@ -1168,19 +1168,19 @@ function SlawnWidget({ shared, openSettings, settingsOpen, skin, setSkin, caos, 
         transition:"all .2s ease",
         animation:"plop .4s .15s ease both", "--rot": copied ? "1deg" : "-1deg",
       }}>
-        {copied ? "Â¡COPIADO! âœ“" : "EXPORTAR ESTO â†’"}
+        {copied ? "¡COPIADO! ✓" : "EXPORTAR ESTO →"}
         <Drip color={copied ? S_GRN : S_RED} left={48}/>
         <Drip color={S_YEL} left={264} w={7}/>
       </button>
 
       <div style={{ textAlign:"center", fontFamily:MARKER, fontSize:11, color:INK, opacity:0.45, transform:"rotate(-1deg)" }}>
-        huella Â· pintado a mano, escuchado en vivo
+        huella · pintado a mano, escuchado en vivo
       </div>
     </div>
   );
 }
 
-/* â•â•â•â•â•â•â•â• WIDGET GLASS (clÃ¡sico simple o PRO MAX) â•â•â•â•â•â•â•â• */
+/* ════════ WIDGET GLASS (clásico simple o PRO MAX) ════════ */
 function GlassWidget({ pro, shared, S, set, T, K, skin, setSkin, askPro, proUnlocked, enterPro, exitPro, enterProfesor, chat }) {
   const { recording, setRecording, sec, fmt, bands, level, isReal, pos, onPointerDown, handleExport, copied, minimize, toggleRecording, lines, meetingUrl, setMeetingUrl, transcriptCtx } = shared;
   const [tab, setTab] = useState("live");
@@ -1253,7 +1253,7 @@ function GlassWidget({ pro, shared, S, set, T, K, skin, setSkin, askPro, proUnlo
               boxShadow: recording ? `0 0 ${8*G}px ${RED}` : `0 0 ${8*G}px ${T.sp[1]}`,
               transition:"all .3s",
             }}/>
-            {recording ? (isReal ? "MicrÃ³fono activo" : "Grabando (demo)") : "SesiÃ³n lista"}
+            {recording ? (isReal ? "Micrófono activo" : "Grabando (demo)") : "Sesión lista"}
           </div>
           <div style={{ fontSize:fz(29), fontWeight:900, letterSpacing:"-0.045em", lineHeight:0.95, color:"#000", display:"flex", alignItems:"baseline", gap:7 }}>
             <span>HUELLA</span>
@@ -1283,7 +1283,7 @@ function GlassWidget({ pro, shared, S, set, T, K, skin, setSkin, askPro, proUnlo
             </svg>
           </button>
 
-          <button onClick={minimize} aria-label="Minimizar a cÃ¡psula" style={{
+          <button onClick={minimize} aria-label="Minimizar a cápsula" style={{
             ...K.glass(0.08), width:30, height:30, borderRadius:"50%",
             display:"flex", alignItems:"center", justifyContent:"center",
             cursor:"pointer", border:"none", flexShrink:0,
@@ -1297,7 +1297,7 @@ function GlassWidget({ pro, shared, S, set, T, K, skin, setSkin, askPro, proUnlo
             <svg viewBox="0 0 100 100" style={{ width:"100%", height:"100%", animation:`spinSlow ${dur(16)} linear infinite` }}>
               <defs><path id="circ" d="M 50,50 m -36,0 a 36,36 0 1,1 72,0 a 36,36 0 1,1 -72,0"/></defs>
               <text style={{ fontSize:12.5, fontWeight:800, letterSpacing:"0.32em", fill:K.tx(0.55) }}>
-                <textPath href="#circ">TRANSCRIPCIÃ“N Â· EN VIVO Â·</textPath>
+                <textPath href="#circ">TRANSCRIPCIÓN · EN VIVO ·</textPath>
               </text>
             </svg>
             <div style={{
@@ -1333,7 +1333,7 @@ function GlassWidget({ pro, shared, S, set, T, K, skin, setSkin, askPro, proUnlo
               Estilo del widget
             </div>
             <Segment T={T} K={K} value={skin} onChange={setSkin}
-              options={[["cristal","âœ¦ Cristal"],["slawn","âœŽ Slawn"]]}/>
+              options={[["cristal","✦ Cristal"],["slawn","✎ Slawn"]]}/>
           </div>
           {/* modo profesor */}
           <button onClick={enterProfesor} style={{
@@ -1377,14 +1377,14 @@ function GlassWidget({ pro, shared, S, set, T, K, skin, setSkin, askPro, proUnlo
           <div>
             <div style={{ fontSize:9, fontWeight:800, letterSpacing:"0.2em", textTransform:"uppercase", color:K.tx(0.4), marginBottom:7 }}>Esquinas</div>
             <Segment T={T} K={K} value={radiusSegVal} onChange={v => set({ radius:RADIUS_SEG[v] })}
-              options={[["nitido","NÃ­tido"],["suave","Suave"],["capsula","CÃ¡psula"]]}/>
+              options={[["nitido","Nítido"],["suave","Suave"],["capsula","Cápsula"]]}/>
           </div>
           <div>
-            <div style={{ fontSize:9, fontWeight:800, letterSpacing:"0.2em", textTransform:"uppercase", color:K.tx(0.4), marginBottom:7 }}>Texto Â· segÃºn tu fondo</div>
+            <div style={{ fontSize:9, fontWeight:800, letterSpacing:"0.2em", textTransform:"uppercase", color:K.tx(0.4), marginBottom:7 }}>Texto · según tu fondo</div>
             <Segment T={T} K={K} value={S.textMode} onChange={v => set({ textMode:v })}
-              options={[["claro","Claro Â· fondo oscuro"],["oscuro","Oscuro Â· fondo claro"]]}/>
+              options={[["claro","Claro · fondo oscuro"],["oscuro","Oscuro · fondo claro"]]}/>
           </div>
-          <Toggle label="FlotaciÃ³n suave" value={S.floating} onChange={v => set({ floating:v })} T={T} K={K}/>
+          <Toggle label="Flotación suave" value={S.floating} onChange={v => set({ floating:v })} T={T} K={K}/>
 
           {/* PRO MAX lock */}
           <button onClick={() => proUnlocked ? enterPro() : askPro()} style={{
@@ -1402,7 +1402,7 @@ function GlassWidget({ pro, shared, S, set, T, K, skin, setSkin, askPro, proUnlo
                 ? <><rect x="5" y="11" width="14" height="9" rx="2.5"/><path d="M8 11V7a4 4 0 0 1 7.5-2"/></>
                 : <><rect x="5" y="11" width="14" height="9" rx="2.5"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></>}
             </svg>
-            {proUnlocked ? "Entrar a PRO MAX" : "PRO MAX Â· bloqueado"}
+            {proUnlocked ? "Entrar a PRO MAX" : "PRO MAX · bloqueado"}
           </button>
         </div>
       )}
@@ -1414,7 +1414,7 @@ function GlassWidget({ pro, shared, S, set, T, K, skin, setSkin, askPro, proUnlo
           animation:"rise .35s cubic-bezier(.2,.8,.3,1) both",
           maxHeight:400, overflowY:"auto",
         }}>
-          <div style={{ fontSize:9, fontWeight:800, letterSpacing:"0.2em", textTransform:"uppercase", color:K.tx(0.4), marginBottom:8 }}>Presets rÃ¡pidos</div>
+          <div style={{ fontSize:9, fontWeight:800, letterSpacing:"0.2em", textTransform:"uppercase", color:K.tx(0.4), marginBottom:8 }}>Presets rápidos</div>
           <div style={{ display:"flex", gap:5, flexWrap:"wrap", marginBottom:13 }}>
             {Object.entries(PRESETS).map(([name, patch]) => (
               <button key={name} onClick={() => set(patch)} style={{
@@ -1446,13 +1446,13 @@ function GlassWidget({ pro, shared, S, set, T, K, skin, setSkin, askPro, proUnlo
             </div>
             {S.themeKey === "custom" && (
               <>
-                <Slider label="Tono" value={S.customHue} min={0} max={360} onChange={v => set({ customHue:v })} T={T} K={K} suffix="Â°"
+                <Slider label="Tono" value={S.customHue} min={0} max={360} onChange={v => set({ customHue:v })} T={T} K={K} suffix="°"
                   track="linear-gradient(to right, hsl(0 85% 55%), hsl(60 85% 55%), hsl(120 85% 55%), hsl(180 85% 55%), hsl(240 85% 55%), hsl(300 85% 55%), hsl(360 85% 55%))"/>
-                <Slider label="SaturaciÃ³n" value={S.customSat} min={20} max={100} onChange={v => set({ customSat:v })} T={T} K={K} suffix="%"/>
+                <Slider label="Saturación" value={S.customSat} min={20} max={100} onChange={v => set({ customSat:v })} T={T} K={K} suffix="%"/>
               </>
             )}
             <Segment T={T} K={K} value={S.textMode} onChange={v => set({ textMode:v })}
-              options={[["claro","Claro Â· fondo oscuro"],["oscuro","Oscuro Â· fondo claro"]]}/>
+              options={[["claro","Claro · fondo oscuro"],["oscuro","Oscuro · fondo claro"]]}/>
           </Section>
 
           <Section title="Vidrio" open={section==="vidrio"} onToggle={() => setSection(s => s==="vidrio" ? "" : "vidrio")} T={T} K={K}>
@@ -1461,7 +1461,7 @@ function GlassWidget({ pro, shared, S, set, T, K, skin, setSkin, askPro, proUnlo
             <Toggle label="Brillo especular" value={S.specular} onChange={v => set({ specular:v })} T={T} K={K}/>
           </Section>
 
-          <Section title="Forma y tamaÃ±o" open={section==="forma"} onToggle={() => setSection(s => s==="forma" ? "" : "forma")} T={T} K={K}>
+          <Section title="Forma y tamaño" open={section==="forma"} onToggle={() => setSection(s => s==="forma" ? "" : "forma")} T={T} K={K}>
             <Slider label="Redondez de esquinas" value={S.radius} min={2} max={30} onChange={v => set({ radius:v })} T={T} K={K}/>
             <Slider label="Ancho del widget" value={S.width} min={300} max={420} onChange={v => set({ width:v })} T={T} K={K} suffix="px"/>
             <Segment T={T} K={K} value={S.spacing} onChange={v => set({ spacing:v })}
@@ -1469,17 +1469,17 @@ function GlassWidget({ pro, shared, S, set, T, K, skin, setSkin, askPro, proUnlo
           </Section>
 
           <Section title="Contenido y texto" open={section==="texto"} onToggle={() => setSection(s => s==="texto" ? "" : "texto")} T={T} K={K}>
-            <Slider label="TamaÃ±o de letra" value={S.fontScale} min={0.85} max={1.2} step={0.01} onChange={v => set({ fontScale:v })} T={T} K={K} suffix="Ã—"/>
+            <Slider label="Tamaño de letra" value={S.fontScale} min={0.85} max={1.2} step={0.01} onChange={v => set({ fontScale:v })} T={T} K={K} suffix="×"/>
             <Toggle label="Mostrar marcas de tiempo" value={S.showTimes} onChange={v => set({ showTimes:v })} T={T} K={K}/>
             <Toggle label="Mostrar avatares" value={S.showAvatars} onChange={v => set({ showAvatars:v })} T={T} K={K}/>
           </Section>
 
           <Section title="Movimiento y efectos" open={section==="mov"} onToggle={() => setSection(s => s==="mov" ? "" : "mov")} T={T} K={K}>
-            <Toggle label="FlotaciÃ³n suave" value={S.floating} onChange={v => set({ floating:v })} T={T} K={K}/>
-            <Slider label="Velocidad de animaciÃ³n" value={S.speed} min={0.5} max={2} step={0.05} onChange={v => set({ speed:v })} T={T} K={K} suffix="Ã—"/>
-            <Slider label="Intensidad del glow" value={S.glow} min={0} max={2} step={0.05} onChange={v => set({ glow:v })} T={T} K={K} suffix="Ã—"/>
+            <Toggle label="Flotación suave" value={S.floating} onChange={v => set({ floating:v })} T={T} K={K}/>
+            <Slider label="Velocidad de animación" value={S.speed} min={0.5} max={2} step={0.05} onChange={v => set({ speed:v })} T={T} K={K} suffix="×"/>
+            <Slider label="Intensidad del glow" value={S.glow} min={0} max={2} step={0.05} onChange={v => set({ glow:v })} T={T} K={K} suffix="×"/>
             <Segment T={T} K={K} value={S.waveStyle} onChange={v => set({ waveStyle:v })}
-              options={[["barras","Barras"],["linea","LÃ­nea"],["puntos","Puntos"]]}/>
+              options={[["barras","Barras"],["linea","Línea"],["puntos","Puntos"]]}/>
           </Section>
 
           <div style={{ display:"flex", gap:6, marginTop:4 }}>
@@ -1487,7 +1487,7 @@ function GlassWidget({ pro, shared, S, set, T, K, skin, setSkin, askPro, proUnlo
               flex:1.2, padding:"9px 0", borderRadius:11,
               border:`1px solid ${T.p}59`, background:`${T.p}1F`,
               color:K.tx(0.9), fontSize:10.5, fontWeight:700, fontFamily:"inherit", cursor:"pointer",
-            }}>{copiedCfg ? "Copiados âœ“" : "Copiar ajustes"}</button>
+            }}>{copiedCfg ? "Copiados ✓" : "Copiar ajustes"}</button>
             <button onClick={() => set(DEFAULTS)} style={{
               flex:1, padding:"9px 0", borderRadius:11,
               border:"1px solid rgba(128,128,150,0.25)", background:"transparent",
@@ -1502,7 +1502,7 @@ function GlassWidget({ pro, shared, S, set, T, K, skin, setSkin, askPro, proUnlo
         </div>
       )}
 
-      {/* isla de grabaciÃ³n */}
+      {/* isla de grabación */}
       <div onMouseMove={handleSpecular} style={{
         ...K.glass(0.10), borderRadius:r(30), padding:`${sp(15)}px ${sp(17)}px`,
         display:"flex", alignItems:"center", gap:sp(14),
@@ -1541,7 +1541,7 @@ function GlassWidget({ pro, shared, S, set, T, K, skin, setSkin, askPro, proUnlo
         </div>
       </div>
 
-      {/* tabs */
+      {/* tabs */}
       <div style={{ animation:`rise ${dur(0.5)} 0.19s cubic-bezier(.2,.8,.3,1) both` }}>
         <Tabs tabs={tabList} tab={tab} setTab={setTab} T={T} K={K} glow={G}/>
       </div>
@@ -1592,7 +1592,7 @@ function GlassWidget({ pro, shared, S, set, T, K, skin, setSkin, askPro, proUnlo
                     <div key={i} style={{ width:5, height:5, borderRadius:"50%", background:T.hi, animation:`blink 1.2s ${i*0.2}s ease infinite` }}/>
                   ))}
                 </div>
-                <span style={{ fontSize:11.5, color:K.tx(0.45), fontWeight:500 }}>Transcribiendo nueva intervenciÃ³nâ€¦</span>
+                <span style={{ fontSize:11.5, color:K.tx(0.45), fontWeight:500 }}>Transcribiendo nueva intervención…</span>
               </div>
             )}
           </div>
@@ -1703,7 +1703,7 @@ function GlassWidget({ pro, shared, S, set, T, K, skin, setSkin, askPro, proUnlo
         onMouseEnter={e => { e.currentTarget.style.transform="translateY(-2px)"; }}
         onMouseLeave={e => { e.currentTarget.style.transform="translateY(0)"; }}
       >
-        {copied ? "Copiado al portapapeles âœ“" : "Exportar transcripciÃ³n â†—"}
+        {copied ? "Copiado al portapapeles ✓" : "Exportar transcripción ↗"}
       </button>
 
       <div style={{
@@ -1712,13 +1712,13 @@ function GlassWidget({ pro, shared, S, set, T, K, skin, setSkin, askPro, proUnlo
         color:K.tx(0.18), textTransform:"uppercase",
         animation:`rise ${dur(0.5)} 0.4s cubic-bezier(.2,.8,.3,1) both`,
       }}>
-        Huella{pro ? " Pro Max" : ""} Â· {T.name}
+        Huella{pro ? " Pro Max" : ""} · {T.name}
       </div>
     </div>
   );
 }
 
-/* â•â•â•â•â•â•â•â• WIDGET PROFESOR ðŸŽ“ â•â•â•â•â•â•â•â• */
+/* ════════ WIDGET PROFESOR 🎓 ════════ */
 function ProfesorWidget({ shared, S, T, K, exitProfesor, roster, setRoster, notes, setNotes }) {
   const { recording, setRecording, sec, fmt, bands, level, isReal, pos, onPointerDown, handleExport, copied, minimize, toggleRecording, lines, meetingUrl, setMeetingUrl, transcriptCtx } = shared;
   const [tab, setTab] = useState("clase");
@@ -1736,7 +1736,7 @@ function ProfesorWidget({ shared, S, T, K, exitProfesor, roster, setRoster, note
     return () => clearInterval(id);
   }, []);
 
-  /* â”€â”€ semÃ¡foro de ruido (usa el micro real) â”€â”€ */
+  /* ── semáforo de ruido (usa el micro real) ── */
   const zone = !recording ? "off" : level < 0.12 ? "verde" : level < 0.3 ? "ambar" : "rojo";
   const [noiseWarnings, setNoiseWarnings] = useState(0);
   const lastZone = useRef("off");
@@ -1745,7 +1745,7 @@ function ProfesorWidget({ shared, S, T, K, exitProfesor, roster, setRoster, note
     lastZone.current = zone;
   }, [zone]);
 
-  /* â”€â”€ asistencia â”€â”€ */
+  /* ── asistencia ── */
   const ST_CFG = {
     none:    { label:"Sin marcar", col:"rgba(128,128,150,0.55)" },
     presente:{ label:"Presente",   col:T.sp[1] },
@@ -1770,16 +1770,16 @@ function ProfesorWidget({ shared, S, T, K, exitProfesor, roster, setRoster, note
   const [copiedLista, setCopiedLista] = useState(false);
   const exportLista = async () => {
     const f = new Date().toLocaleDateString("es-ES");
-    const grp = st => roster.filter(s => s.status===st).map(s => s.name).join(", ") || "â€”";
-    const text = [`ASISTENCIA Â· ${f}`, "â”€".repeat(26),
-      `âœ“ Presentes (${counts.presente}): ${grp("presente")}`,
-      `ðŸ• Tarde (${counts.tarde}): ${grp("tarde")}`,
-      `âœ— Ausentes (${counts.ausente}): ${grp("ausente")}`,
+    const grp = st => roster.filter(s => s.status===st).map(s => s.name).join(", ") || "—";
+    const text = [`ASISTENCIA · ${f}`, "─".repeat(26),
+      `✓ Presentes (${counts.presente}): ${grp("presente")}`,
+      `🕐 Tarde (${counts.tarde}): ${grp("tarde")}`,
+      `✗ Ausentes (${counts.ausente}): ${grp("ausente")}`,
       `Sin marcar: ${grp("none")}`].join("\n");
     try { await navigator.clipboard.writeText(text); setCopiedLista(true); setTimeout(() => setCopiedLista(false), 1800); } catch {}
   };
 
-  /* â”€â”€ participaciÃ³n + selector aleatorio â”€â”€ */
+  /* ── participación + selector aleatorio ── */
   const addPoint = (id, d) => setRoster(rs => rs.map(s => s.id === id ? { ...s, points:Math.max(0, s.points + d) } : s));
   const maxPts = Math.max(...roster.map(s => s.points), 0);
   const [noRepeat, setNoRepeat] = useState(true);
@@ -1803,7 +1803,7 @@ function ProfesorWidget({ shared, S, T, K, exitProfesor, roster, setRoster, note
     }, 1400);
   };
 
-  /* â”€â”€ temporizador â”€â”€ */
+  /* ── temporizador ── */
   const [total, setTotal] = useState(0);
   const [left, setLeft] = useState(0);
   const [running, setRunning] = useState(false);
@@ -1821,7 +1821,7 @@ function ProfesorWidget({ shared, S, T, K, exitProfesor, roster, setRoster, note
   const RING_R = 52, CIRC = 2 * Math.PI * RING_R;
   const prog = total ? left / total : 1;
 
-  /* â”€â”€ quiz IA â”€â”€ */
+  /* ── quiz IA ── */
   const [quiz, setQuiz] = useState([]);
   const [quizLoading, setQuizLoading] = useState(false);
   const [quizError, setQuizError] = useState("");
@@ -1834,7 +1834,7 @@ function ProfesorWidget({ shared, S, T, K, exitProfesor, roster, setRoster, note
         body: JSON.stringify({
           type:"quiz",
           messages:[{ role:"user", content:
-            `${transcriptCtx}\n\nGenera exactamente 3 preguntas de repaso para estudiantes sobre esta lecciÃ³n, con su respuesta breve. Responde SOLO con un array JSON vÃ¡lido sin texto adicional ni markdown: [{"pregunta":"...","respuesta":"..."}]` }],
+            `${transcriptCtx}\n\nGenera exactamente 3 preguntas de repaso para estudiantes sobre esta lección, con su respuesta breve. Responde SOLO con un array JSON válido sin texto adicional ni markdown: [{"pregunta":"...","respuesta":"..."}]` }],
         }),
       });
       const data = await res.json();
@@ -1843,17 +1843,17 @@ function ProfesorWidget({ shared, S, T, K, exitProfesor, roster, setRoster, note
       const arr = JSON.parse(clean);
       setQuiz(arr.slice(0, 5).map((x, i) => ({ id:i, q:x.pregunta || "", a:x.respuesta || "", open:false })));
     } catch {
-      setQuizError("No pude generar el quiz ahora mismo. IntÃ©ntalo de nuevo.");
+      setQuizError("No pude generar el quiz ahora mismo. Inténtalo de nuevo.");
     }
     setQuizLoading(false);
   };
   const toggleCard = id => setQuiz(q => q.map(c => c.id === id ? { ...c, open:!c.open } : c));
 
-  /* â”€â”€ notas / deberes â”€â”€ */
+  /* ── notas / deberes ── */
   const NOTE_TYPES = {
-    nota:    { label:"Nota",    icon:"ðŸ“Œ", col:T.hi },
-    deberes: { label:"Deberes", icon:"ðŸ“š", col:T.sp[1] },
-    examen:  { label:"Examen",  icon:"âš ï¸", col:RED },
+    nota:    { label:"Nota",    icon:"📌", col:T.hi },
+    deberes: { label:"Deberes", icon:"📚", col:T.sp[1] },
+    examen:  { label:"Examen",  icon:"⚠️", col:RED },
   };
   const [noteText, setNoteText] = useState("");
   const [noteType, setNoteType] = useState("deberes");
@@ -1866,12 +1866,12 @@ function ProfesorWidget({ shared, S, T, K, exitProfesor, roster, setRoster, note
   const [copiedNotas, setCopiedNotas] = useState(false);
   const exportNotas = async () => {
     const f = new Date().toLocaleDateString("es-ES");
-    const by = t => notes.filter(n => n.type === t).map(n => `Â· ${n.text}`).join("\n") || "Â· â€”";
-    const text = [`RESUMEN PARA ALUMNOS Â· ${f}`, "â”€".repeat(26),
+    const by = t => notes.filter(n => n.type === t).map(n => `· ${n.text}`).join("\n") || "· —";
+    const text = [`RESUMEN PARA ALUMNOS · ${f}`, "─".repeat(26),
       `TEMA: ${RESUMEN_ROWS[0].v}`,
-      `\nðŸ“š DEBERES:\n${by("deberes")}`,
-      `\nâš ï¸ PARA EL EXAMEN:\n${by("examen")}`,
-      `\nðŸ“Œ NOTAS:\n${by("nota")}`].join("\n");
+      `\n📚 DEBERES:\n${by("deberes")}`,
+      `\n⚠️ PARA EL EXAMEN:\n${by("examen")}`,
+      `\n📌 NOTAS:\n${by("nota")}`].join("\n");
     try { await navigator.clipboard.writeText(text); setCopiedNotas(true); setTimeout(() => setCopiedNotas(false), 1800); } catch {}
   };
 
@@ -1905,7 +1905,7 @@ function ProfesorWidget({ shared, S, T, K, exitProfesor, roster, setRoster, note
               background: recording ? RED : T.sp[1],
               boxShadow: recording ? `0 0 ${8*G}px ${RED}` : `0 0 ${8*G}px ${T.sp[1]}`,
             }}/>
-            {recording ? (isReal ? "MicrÃ³fono activo" : "Grabando (demo)") : "Aula lista"}
+            {recording ? (isReal ? "Micrófono activo" : "Grabando (demo)") : "Aula lista"}
           </div>
           <div style={{ fontSize:fz(29), fontWeight:900, letterSpacing:"-0.045em", lineHeight:0.95, color:"#000", display:"flex", alignItems:"baseline", gap:7 }}>
             <span>HUELLA</span>
@@ -1914,7 +1914,7 @@ function ProfesorWidget({ shared, S, T, K, exitProfesor, roster, setRoster, note
               background:`linear-gradient(145deg, ${T.sp[1]}, ${T.p})`,
               borderRadius:6, padding:"2.5px 7px",
               boxShadow:`0 2px ${10*G}px ${T.p}66, 0 1px 1px rgba(255,255,255,0.35) inset`,
-            }}>ðŸŽ“ PROFESOR</span>
+            }}>🎓 PROFESOR</span>
           </div>
         </div>
 
@@ -1951,7 +1951,7 @@ function ProfesorWidget({ shared, S, T, K, exitProfesor, roster, setRoster, note
         </div>
       </div>
 
-      {/* isla de grabaciÃ³n */}
+      {/* isla de grabación */}
       <div style={{
         ...K.glass(0.10), borderRadius:r(30), padding:`${sp(15)}px ${sp(17)}px`,
         display:"flex", alignItems:"center", gap:sp(14),
@@ -1961,7 +1961,7 @@ function ProfesorWidget({ shared, S, T, K, exitProfesor, roster, setRoster, note
         <RecordButton recording={recording} level={level} onToggle={toggleRecording} T={T} glow={G}/>
         <div style={{ flex:1, minWidth:0 }}>
           <div style={{ color:K.tx(0.95), fontSize:fz(14), fontWeight:700, marginBottom:5, display:"flex", alignItems:"center", gap:8 }}>
-            {recording ? "Grabando la clase" : "Graba la lecciÃ³n"}
+            {recording ? "Grabando la clase" : "Graba la lección"}
             {recording && (
               <span style={{
                 fontSize:11, fontWeight:800, color:RED, fontVariantNumeric:"tabular-nums",
@@ -1981,23 +1981,23 @@ function ProfesorWidget({ shared, S, T, K, exitProfesor, roster, setRoster, note
 
       <div style={{ animation:`rise ${dur(0.5)} 0.26s cubic-bezier(.2,.8,.3,1) both` }}>
 
-        {/* â•â•â• CLASE: transcripciÃ³n + semÃ¡foro de ruido â•â•â• */}
+        {/* ═══ CLASE: transcripción + semáforo de ruido ═══ */}
         {tab === "clase" && (
           <div style={{ display:"flex", flexDirection:"column", gap:sp(8) }}>
-            {/* semÃ¡foro */}
+            {/* semáforo */}
             <div style={{ ...K.glass(0.09), borderRadius:r(20), padding:"12px 14px" }}>
               <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", marginBottom:9 }}>
                 <span style={{ fontSize:10, fontWeight:800, letterSpacing:"0.16em", textTransform:"uppercase", color:K.tx(0.4) }}>
-                  SemÃ¡foro de ruido
+                  Semáforo de ruido
                 </span>
                 <span style={{
                   fontSize:10, fontWeight:800, color: noiseWarnings > 0 ? RED : K.tx(0.4),
                   fontVariantNumeric:"tabular-nums",
-                }}>âš¡ {noiseWarnings} aviso{noiseWarnings !== 1 ? "s" : ""}</span>
+                }}>⚡ {noiseWarnings} aviso{noiseWarnings !== 1 ? "s" : ""}</span>
               </div>
               <div style={{ display:"flex", alignItems:"center", gap:12 }}>
                 <div style={{ display:"flex", gap:7 }}>
-                  {[["verde", T.sp[1], "Silencio"],["ambar","#FFC24B","Murmullo"],["rojo", RED, "Â¡Ruido!"]].map(([z, col]) => (
+                  {[["verde", T.sp[1], "Silencio"],["ambar","#FFC24B","Murmullo"],["rojo", RED, "¡Ruido!"]].map(([z, col]) => (
                     <div key={z} style={{
                       width:22, height:22, borderRadius:"50%",
                       background: zone === z ? col : "rgba(128,128,150,0.18)",
@@ -2017,15 +2017,15 @@ function ProfesorWidget({ shared, S, T, K, exitProfesor, roster, setRoster, note
                   </div>
                   <div style={{ fontSize:10.5, color:K.tx(0.5), fontWeight:600 }}>
                     {zone === "off" ? "Activa el micro para medir el ruido del aula"
-                      : zone === "verde" ? "Silencio â€” perfecto para trabajar"
+                      : zone === "verde" ? "Silencio — perfecto para trabajar"
                       : zone === "ambar" ? "Murmullo de trabajo"
-                      : "Â¡Demasiado ruido!"}
+                      : "¡Demasiado ruido!"}
                   </div>
                 </div>
               </div>
             </div>
 
-            {/* transcripciÃ³n */}
+            {/* transcripción */}
             {lines.slice(0, visible).map((line, i) => {
               const col = T.sp[line.spIdx];
               return (
@@ -2044,7 +2044,7 @@ function ProfesorWidget({ shared, S, T, K, exitProfesor, roster, setRoster, note
           </div>
         )}
 
-        {/* â•â•â• LISTA: asistencia â•â•â• */}
+        {/* ═══ LISTA: asistencia ═══ */}
         {tab === "lista" && (
           <div style={{ display:"flex", flexDirection:"column", gap:sp(8) }}>
             <div style={{ ...K.glass(0.06), borderRadius:r(16), padding:"10px 14px", display:"flex", alignItems:"center", gap:10 }}>
@@ -2059,7 +2059,7 @@ function ProfesorWidget({ shared, S, T, K, exitProfesor, roster, setRoster, note
                 border:`1px solid ${T.sp[1]}66`, background:`${T.sp[1]}1F`,
                 color:K.tx(0.85), fontSize:10, fontWeight:800,
                 fontFamily:"inherit", cursor:"pointer",
-              }}>Todos âœ“</button>
+              }}>Todos ✓</button>
             </div>
 
             {roster.map((s, i) => {
@@ -2084,7 +2084,7 @@ function ProfesorWidget({ shared, S, T, K, exitProfesor, roster, setRoster, note
                     border:"none", background:"rgba(128,128,150,0.18)", borderRadius:"50%",
                     width:18, height:18, cursor:"pointer", color:K.tx(0.55),
                     fontSize:11, lineHeight:1, display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0,
-                  }}>Ã—</button>
+                  }}>×</button>
                 </div>
               );
             })}
@@ -2092,7 +2092,7 @@ function ProfesorWidget({ shared, S, T, K, exitProfesor, roster, setRoster, note
             <div style={{ ...K.glass(0.07), borderRadius:999, padding:"5px 5px 5px 14px", display:"flex", alignItems:"center", gap:8 }}>
               <input value={newName} onChange={e => setNewName(e.target.value)}
                 onKeyDown={e => { if (e.key === "Enter") addStudent(); }}
-                placeholder="AÃ±adir alumnoâ€¦"
+                placeholder="Añadir alumno…"
                 style={{ flex:1, background:"transparent", border:"none", outline:"none", color:K.tx(0.92), fontSize:fz(12.5), fontFamily:"inherit" }}/>
               <button onClick={addStudent} style={{
                 width:30, height:30, borderRadius:"50%", border:"none",
@@ -2108,11 +2108,11 @@ function ProfesorWidget({ shared, S, T, K, exitProfesor, roster, setRoster, note
               color:K.tx(0.9), fontSize:11, fontWeight:800,
               letterSpacing:"0.06em", textTransform:"uppercase",
               fontFamily:"inherit", cursor:"pointer",
-            }}>{copiedLista ? "Lista copiada âœ“" : "Copiar asistencia"}</button>
+            }}>{copiedLista ? "Lista copiada ✓" : "Copiar asistencia"}</button>
           </div>
         )}
 
-        {/* â•â•â• PARTICIPA: selector aleatorio + puntos â•â•â• */}
+        {/* ═══ PARTICIPA: selector aleatorio + puntos ═══ */}
         {tab === "participa" && (
           <div style={{ display:"flex", flexDirection:"column", gap:sp(8) }}>
             {/* ruleta */}
@@ -2125,13 +2125,13 @@ function ProfesorWidget({ shared, S, T, K, exitProfesor, roster, setRoster, note
                   <span style={{
                     fontSize:fz(20), fontWeight:900, color:K.tx(0.97),
                     animation:"pop .35s cubic-bezier(.34,1.5,.64,1) both",
-                  }}>ðŸŽ¯ {winner}</span>
+                  }}>🎯 {winner}</span>
                 ) : spinning ? (
                   <span style={{ fontSize:fz(15), fontWeight:800, color:T.hi }}>
-                    {roster.find(s => s.id === highlightId)?.name || "â€¦"}
+                    {roster.find(s => s.id === highlightId)?.name || "…"}
                   </span>
                 ) : (
-                  <span style={{ fontSize:12, color:K.tx(0.45) }}>Â¿A quiÃ©n le toca responder?</span>
+                  <span style={{ fontSize:12, color:K.tx(0.45) }}>¿A quién le toca responder?</span>
                 )}
               </div>
               <button onClick={spin} disabled={!eligible.length || spinning} style={{
@@ -2144,18 +2144,18 @@ function ProfesorWidget({ shared, S, T, K, exitProfesor, roster, setRoster, note
                 fontFamily:"inherit", cursor: eligible.length ? "pointer" : "default",
                 boxShadow: eligible.length ? `0 4px ${18*G}px ${T.p}66, 0 1px 1px rgba(255,255,255,0.4) inset` : "none",
               }}>
-                {spinning ? "Eligiendoâ€¦" : eligible.length ? "ðŸŽ² Elegir alumno al azar" : "No quedan alumnos"}
+                {spinning ? "Eligiendo…" : eligible.length ? "🎲 Elegir alumno al azar" : "No quedan alumnos"}
               </button>
               <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", marginTop:9 }}>
                 <button onClick={() => setNoRepeat(v => !v)} style={{
                   border:"none", background:"transparent", cursor:"pointer",
                   fontSize:10.5, fontWeight:700, fontFamily:"inherit",
                   color: noRepeat ? T.hi : K.tx(0.4),
-                }}>{noRepeat ? "âœ“ sin repetir" : "â—‹ puede repetir"}</button>
+                }}>{noRepeat ? "✓ sin repetir" : "○ puede repetir"}</button>
                 <button onClick={() => { setPickedIds([]); setWinner(null); setHighlightId(null); }} style={{
                   border:"none", background:"transparent", cursor:"pointer",
                   fontSize:10.5, fontWeight:700, fontFamily:"inherit", color:K.tx(0.4),
-                }}>â†º reiniciar ronda</button>
+                }}>↺ reiniciar ronda</button>
               </div>
             </div>
 
@@ -2172,13 +2172,13 @@ function ProfesorWidget({ shared, S, T, K, exitProfesor, roster, setRoster, note
                   opacity: s.status === "ausente" ? 0.45 : 1,
                 }}>
                   <span style={{ color:K.tx(0.9), fontSize:fz(13), fontWeight:600, flex:1, display:"flex", alignItems:"center", gap:6 }}>
-                    {s.name}{lead && " ðŸ‘‘"}
+                    {s.name}{lead && " 👑"}
                   </span>
                   <button onClick={() => addPoint(s.id, -1)} style={{
                     width:26, height:26, borderRadius:"50%", border:"1px solid rgba(128,128,150,0.3)",
                     background:"transparent", color:K.tx(0.6), fontSize:14, cursor:"pointer",
                     display:"flex", alignItems:"center", justifyContent:"center",
-                  }}>âˆ’</button>
+                  }}>−</button>
                   <span style={{
                     minWidth:26, textAlign:"center",
                     color: s.points > 0 ? T.hi : K.tx(0.4),
@@ -2197,7 +2197,7 @@ function ProfesorWidget({ shared, S, T, K, exitProfesor, roster, setRoster, note
           </div>
         )}
 
-        {/* â•â•â• TIMER â•â•â• */}
+        {/* ═══ TIMER ═══ */}
         {tab === "timer" && (
           <div style={{ ...K.glass(0.09), borderRadius:r(24), padding:"18px 16px", textAlign:"center" }}>
             <div style={{ position:"relative", width:140, height:140, margin:"0 auto 14px" }}>
@@ -2218,7 +2218,7 @@ function ProfesorWidget({ shared, S, T, K, exitProfesor, roster, setRoster, note
                   color: finished ? RED : K.tx(0.95),
                   animation: finished ? "blink 1s step-start infinite" : "none",
                 }}>{fmt(left)}</span>
-                {finished && <span style={{ fontSize:11, fontWeight:800, color:RED }}>â° Â¡Tiempo!</span>}
+                {finished && <span style={{ fontSize:11, fontWeight:800, color:RED }}>⏰ ¡Tiempo!</span>}
               </div>
             </div>
 
@@ -2236,7 +2236,7 @@ function ProfesorWidget({ shared, S, T, K, exitProfesor, roster, setRoster, note
                 padding:"6px 11px", borderRadius:999, border:"1px solid rgba(128,128,150,0.25)",
                 background:"transparent", color:K.tx(0.6), fontSize:11, fontWeight:800,
                 fontFamily:"inherit", cursor:"pointer",
-              }}>âˆ’1</button>
+              }}>−1</button>
               <button onClick={() => bump(1)} disabled={running} style={{
                 padding:"6px 11px", borderRadius:999, border:"1px solid rgba(128,128,150,0.25)",
                 background:"transparent", color:K.tx(0.6), fontSize:11, fontWeight:800,
@@ -2266,7 +2266,7 @@ function ProfesorWidget({ shared, S, T, K, exitProfesor, roster, setRoster, note
           </div>
         )}
 
-        {/* â•â•â• QUIZ IA â•â•â• */}
+        {/* ═══ QUIZ IA ═══ */}
         {tab === "quiz" && (
           <div style={{ display:"flex", flexDirection:"column", gap:sp(8) }}>
             <button onClick={generateQuiz} disabled={quizLoading} style={{
@@ -2278,7 +2278,7 @@ function ProfesorWidget({ shared, S, T, K, exitProfesor, roster, setRoster, note
               boxShadow:`0 4px ${16*G}px ${T.p}66, 0 1px 1px rgba(255,255,255,0.4) inset`,
               opacity: quizLoading ? 0.7 : 1,
             }}>
-              {quizLoading ? "Generando preguntasâ€¦" : quiz.length ? "â†º Generar otro quiz" : "âœ¨ Quiz de repaso con IA"}
+              {quizLoading ? "Generando preguntas…" : quiz.length ? "↺ Generar otro quiz" : "✨ Quiz de repaso con IA"}
             </button>
 
             {quizLoading && (
@@ -2289,13 +2289,13 @@ function ProfesorWidget({ shared, S, T, K, exitProfesor, roster, setRoster, note
               </div>
             )}
             {quizError && (
-              <div style={{ ...K.glass(0.06), borderRadius:r(16), padding:"12px 14px", fontSize:12, color:RED, fontWeight:600 }}>âš ï¸ {quizError}</div>
+              <div style={{ ...K.glass(0.06), borderRadius:r(16), padding:"12px 14px", fontSize:12, color:RED, fontWeight:600 }}>⚠️ {quizError}</div>
             )}
             {!quizLoading && !quiz.length && !quizError && (
               <div style={{ ...K.glass(0.05), borderRadius:r(16), padding:"20px 16px", textAlign:"center" }}>
-                <div style={{ fontSize:20, marginBottom:6 }}>ðŸ§ </div>
+                <div style={{ fontSize:20, marginBottom:6 }}>🧠</div>
                 <div style={{ fontSize:12, color:K.tx(0.5), lineHeight:1.5 }}>
-                  La IA crearÃ¡ preguntas de repaso a partir de lo transcrito en la lecciÃ³n.
+                  La IA creará preguntas de repaso a partir de lo transcrito en la lección.
                 </div>
               </div>
             )}
@@ -2322,7 +2322,7 @@ function ProfesorWidget({ shared, S, T, K, exitProfesor, roster, setRoster, note
                         background:`${T.sp[1]}1C`, border:`1px solid ${T.sp[1]}4D`,
                         color:K.tx(0.85), fontSize:fz(12.5), lineHeight:1.45,
                         animation:"rise .25s ease both",
-                      }}>âœ“ {c.a}</div>
+                      }}>✓ {c.a}</div>
                     ) : (
                       <div style={{ marginTop:5, fontSize:10.5, color:T.hi, fontWeight:700 }}>tocar para ver la respuesta</div>
                     )}
@@ -2333,7 +2333,7 @@ function ProfesorWidget({ shared, S, T, K, exitProfesor, roster, setRoster, note
           </div>
         )}
 
-        {/* â•â•â• NOTAS / DEBERES â•â•â• */}
+        {/* ═══ NOTAS / DEBERES ═══ */}
         {tab === "notas" && (
           <div style={{ display:"flex", flexDirection:"column", gap:sp(8) }}>
             <div style={{ display:"flex", gap:5 }}>
@@ -2351,7 +2351,7 @@ function ProfesorWidget({ shared, S, T, K, exitProfesor, roster, setRoster, note
             <div style={{ ...K.glass(0.07), borderRadius:999, padding:"5px 5px 5px 14px", display:"flex", alignItems:"center", gap:8 }}>
               <input value={noteText} onChange={e => setNoteText(e.target.value)}
                 onKeyDown={e => { if (e.key === "Enter") addNote(); }}
-                placeholder={noteType === "deberes" ? "Ej: ejercicios 3 y 4, pÃ¡g. 52â€¦" : noteType === "examen" ? "Ej: entra el tema 5â€¦" : "Apunta algo rÃ¡pidoâ€¦"}
+                placeholder={noteType === "deberes" ? "Ej: ejercicios 3 y 4, pág. 52…" : noteType === "examen" ? "Ej: entra el tema 5…" : "Apunta algo rápido…"}
                 style={{ flex:1, background:"transparent", border:"none", outline:"none", color:K.tx(0.92), fontSize:fz(12.5), fontFamily:"inherit" }}/>
               <button onClick={addNote} style={{
                 width:30, height:30, borderRadius:"50%", border:"none",
@@ -2363,7 +2363,7 @@ function ProfesorWidget({ shared, S, T, K, exitProfesor, roster, setRoster, note
 
             {notes.length === 0 ? (
               <div style={{ ...K.glass(0.05), borderRadius:r(16), padding:"18px", textAlign:"center", fontSize:12, color:K.tx(0.45) }}>
-                Sin notas todavÃ­a â€” apunta deberes, avisos de examen o ideas.
+                Sin notas todavía — apunta deberes, avisos de examen o ideas.
               </div>
             ) : notes.map((n, i) => {
               const t = NOTE_TYPES[n.type];
@@ -2379,7 +2379,7 @@ function ProfesorWidget({ shared, S, T, K, exitProfesor, roster, setRoster, note
                     border:"none", background:"rgba(128,128,150,0.18)", borderRadius:"50%",
                     width:18, height:18, cursor:"pointer", color:K.tx(0.55),
                     fontSize:11, lineHeight:1, display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0,
-                  }}>Ã—</button>
+                  }}>×</button>
                 </div>
               );
             })}
@@ -2390,12 +2390,12 @@ function ProfesorWidget({ shared, S, T, K, exitProfesor, roster, setRoster, note
               color:K.tx(0.9), fontSize:11, fontWeight:800,
               letterSpacing:"0.06em", textTransform:"uppercase",
               fontFamily:"inherit", cursor:"pointer",
-            }}>{copiedNotas ? "Resumen copiado âœ“" : "ðŸ“‹ Copiar resumen para alumnos"}</button>
+            }}>{copiedNotas ? "Resumen copiado ✓" : "📋 Copiar resumen para alumnos"}</button>
           </div>
         )}
       </div>
 
-      {/* exportar transcripciÃ³n */}
+      {/* exportar transcripción */}
       <button onClick={handleExport} style={{
         borderRadius:r(18), padding:`${sp(13)}px 0`, width:"100%",
         background: copied
@@ -2411,7 +2411,7 @@ function ProfesorWidget({ shared, S, T, K, exitProfesor, roster, setRoster, note
         ].join(", "),
         animation:`rise ${dur(0.5)} 0.33s cubic-bezier(.2,.8,.3,1) both`,
       }}>
-        {copied ? "Copiado al portapapeles âœ“" : "Exportar transcripciÃ³n â†—"}
+        {copied ? "Copiado al portapapeles ✓" : "Exportar transcripción ↗"}
       </button>
 
       <div style={{
@@ -2420,13 +2420,13 @@ function ProfesorWidget({ shared, S, T, K, exitProfesor, roster, setRoster, note
         color:K.tx(0.18), textTransform:"uppercase",
         animation:`rise ${dur(0.5)} 0.4s cubic-bezier(.2,.8,.3,1) both`,
       }}>
-        Huella Profesor Â· {T.name}
+        Huella Profesor · {T.name}
       </div>
     </div>
   );
 }
 
-/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• APP â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
+/* ════════════════ APP ════════════════ */
 export default function HuellaSuite() {
   const [skin, setSkin] = useState("cristal");           // cristal | slawn
   const [mode, setMode] = useState("classic");           // classic | pro | profesor
@@ -2442,27 +2442,27 @@ export default function HuellaSuite() {
   const [S, setS] = useState(DEFAULTS);
   const set = patch => setS(s => ({ ...s, ...patch }));
 
-  /* estado de pestaÃ±as pro (persiste) */
+  /* estado de pestañas pro (persiste) */
   const [query, setQuery] = useState("");
   const [who, setWho] = useState("TODOS");
   const [chatMsgs, setChatMsgs] = useState([]);
   const [chatInput, setChatInput] = useState("");
   const [chatLoading, setChatLoading] = useState(false);
 
-  /* â”€â”€ Vexa / transcripciÃ³n en vivo â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+  /* ── Vexa / transcripción en vivo ─────────────────────────────── */
   const [lines, setLines] = useState(DEMO_LINES);
   const [meetingUrl, setMeetingUrl] = useState("");
   const [vexaSession, setVexaSession] = useState(null);
   const pollRef = useRef(null);
-  const initCtx = "Eres el asistente integrado del widget HUELLA. Esta es la transcripciÃ³n de una reuniÃ³n:\n" +
+  const initCtx = "Eres el asistente integrado del widget HUELLA. Esta es la transcripción de una reunión:\n" +
     DEMO_LINES.map(l => `[${l.time}] ${l.speaker}: ${l.text}`).join("\n") +
-    "\nResponde en espaÃ±ol, de forma breve y directa, basÃ¡ndote Ãºnicamente en la transcripciÃ³n. Si algo no aparece en ella, dilo.";
+    "\nResponde en español, de forma breve y directa, basándote únicamente en la transcripción. Si algo no aparece en ella, dilo.";
   const [transcriptCtx, setTranscriptCtx] = useState(initCtx);
   useEffect(() => {
     setTranscriptCtx(
-      "Eres el asistente integrado del widget HUELLA. Esta es la transcripciÃ³n de una reuniÃ³n:\n" +
+      "Eres el asistente integrado del widget HUELLA. Esta es la transcripción de una reunión:\n" +
       lines.map(l => `[${l.time}] ${l.speaker}: ${l.text}`).join("\n") +
-      "\nResponde en espaÃ±ol, de forma breve y directa, basÃ¡ndote Ãºnicamente en la transcripciÃ³n. Si algo no aparece en ella, dilo."
+      "\nResponde en español, de forma breve y directa, basándote únicamente en la transcripción. Si algo no aparece en ella, dilo."
     );
   }, [lines]);
 
@@ -2505,9 +2505,9 @@ export default function HuellaSuite() {
 
   /* estado del modo profesor (persiste entre modos) */
   const [roster, setRoster] = useState([
-    { id:1, name:"LucÃ­a",   status:"none", points:0 },
+    { id:1, name:"Lucía",   status:"none", points:0 },
     { id:2, name:"Mateo",   status:"none", points:0 },
-    { id:3, name:"SofÃ­a",   status:"none", points:0 },
+    { id:3, name:"Sofía",   status:"none", points:0 },
     { id:4, name:"Hugo",    status:"none", points:0 },
     { id:5, name:"Valeria", status:"none", points:0 },
     { id:6, name:"Daniel",  status:"none", points:0 },
@@ -2563,7 +2563,7 @@ export default function HuellaSuite() {
   }, [S.textMode, S.density, S.blur]);
 
   const handleExport = async () => {
-    const text = ["HUELLA Â· TranscripciÃ³n", "â”€".repeat(28),
+    const text = ["HUELLA · Transcripción", "─".repeat(28),
       ...lines.map(l => `[${l.time}] ${l.speaker}: ${l.text}`)].join("\n");
     try { await navigator.clipboard.writeText(text); setCopied(true); setTimeout(() => setCopied(false), 2000); } catch {}
   };
@@ -2590,7 +2590,7 @@ export default function HuellaSuite() {
         || "No he podido generar una respuesta.";
       setChatMsgs(m => [...m, { role:"assistant", text }]);
     } catch {
-      setChatMsgs(m => [...m, { role:"assistant", text:"âš ï¸ No pude conectar con la IA ahora mismo. Vuelve a intentarlo." }]);
+      setChatMsgs(m => [...m, { role:"assistant", text:"⚠️ No pude conectar con la IA ahora mismo. Vuelve a intentarlo." }]);
     }
     setChatLoading(false);
   }, [chatInput, chatMsgs, chatLoading]);
@@ -2600,7 +2600,7 @@ export default function HuellaSuite() {
 
   const isSlawn = mode === "classic" && skin === "slawn";
 
-  /* â”€â”€ CÃPSULA (skin-aware) â”€â”€ */
+  /* ── CÁPSULA (skin-aware) ── */
   if (collapsed) {
     return (
       <div style={{
